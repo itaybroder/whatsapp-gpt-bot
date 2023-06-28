@@ -65,7 +65,7 @@ function formatChatPrompt(summary, lastMessages, fromMe, author) {
     let formattedPrompt = `<Summary: ${summary}>\n\n###\n\n`;
   
     let formattedMessages = lastMessages.map((msg) => {
-        let sender = (msg.fromMe === fromMe) ? "איתי" : `Friend(${author || msg.contact.number})`;
+        let sender = (msg.fromMe === fromMe) ? "Agent" : `Coustomer(${author || msg.contact.number})`;
         return `${sender}: ${msg.body}`;
     }).join('\n');
   
