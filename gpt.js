@@ -7,29 +7,39 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-const generateResponse = async (chatHistory) => {
+const generateSummary = async (chatHistory) => {
   try {
+    const prompt = chatHistory.map(msg => `${msg.fromMe ? 'איתי' : 'נדב'}: ${msg.body}`).join('\n');
     const completion = await openai.createCompletion({
       model: "text-davinci-003",
-      prompt: chatHistory,
-      max_tokens: 150, // This can be changed depending on how long you want the response to be
+      prompt,
+      max_tokens: 60, // Adjust this value as needed
     });
 
-    // Remove 'Me: ' from the start of the response
+    return completion.data.choices[0].text.trim();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const generateResponse = async (formattedPrompt) => {
+  try {
+    const completion = await openai.createCompletion({
+      model: "your-fine-tuned-model-id", // Replace with your fine-tuned model ID
+      prompt: formattedPrompt,
+      max_tokens: 150, 
+    });
+
+    // Remove the arrow and newline from the start of the response
     let response = completion.data.choices[0].text.trim();
-    if (response.startsWith('Me:')) {
-      response = response.slice(4);
+    if (response.startsWith('->')) {
+      response = response.slice(2);
     }
 
     return response;
   } catch (error) {
-    if (error.response) {
-      console.log(error.response.status);
-      console.log(error.response.data);
-    } else {
-      console.log(error.message);
-    }
+    console.log(error);
   }
 };
 
-module.exports = { generateResponse };
+module.exports = { generateResponse, generateSummary };
